@@ -8,6 +8,7 @@ import { db, auth, storage } from '../../../utils/firebase'
 import { toast, ToastContainer } from 'react-toastify'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import Template from '../Template/Template'
+import { useNavigation } from 'react-router-dom'
 
 
 const NewPost = () => {
@@ -15,6 +16,7 @@ const NewPost = () => {
    const [banner, setBanner] = useState('') 
    const [uploadProgress, setUploadProgress] = useState(null) 
    const [postLoading, setPostLoading] = useState(false) 
+   const navigate = useNavigation()
    const [data, setData] = useState({
         title:"",
         post:"",
@@ -139,6 +141,9 @@ const NewPost = () => {
                 toast.success('Post added successfully!',{
                     position: toast.POSITION_TOP_RIGHT
                 })
+                setTimeout(() => {
+                    navigate('/')
+                }, 2500);
             }
     }catch (err) {
         console.error(err);
@@ -183,7 +188,7 @@ const NewPost = () => {
                 <button type='button'  disabled={(uploadProgress !== null && uploadProgress < 100) || postLoading} onClick={createPost} className='font-sm rounded-lg bg-slate-950 disabled:bg-slate-300 text-white px-4 py-2 w-fit flex gap-2 items-center'><span>Create post</span> <FaPenFancy /></button>
             </div>
         </div>
-        <ToastContainer autoClose={2000} />
+        <ToastContainer autoClose={1500} />
     </Template>
   )
 }
