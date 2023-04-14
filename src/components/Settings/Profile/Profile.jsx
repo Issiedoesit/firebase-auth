@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../../../utils/firebase'
 import Template from '../../Dashboard/Template/Template'
@@ -8,18 +8,22 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { toast, ToastContainer } from 'react-toastify'
 import { updateProfile } from 'firebase/auth'
-import { doc, setDoc } from "firebase/firestore"
+import { collection, doc, getDoc, setDoc } from "firebase/firestore"
 import { db } from '../../../utils/firebase'
 
 
 const Profile = () => {
   const [user, loading] = useAuthState(auth)
   const [editImage, setEditImage] = useState(false)
+  const [userDetails, setUserDetails] = useState({
+
+  })
+  const [editDetails, setEditDetails] = useState(false)
 
   const formik = useFormik({
     initialValues:{
       photo:"",
-      username:"",
+      username: "",
       bio:"",
       location:""
     },
@@ -55,6 +59,7 @@ const Profile = () => {
         bio: formik.values.bio,
         location: formik.values.location
       });
+      setEditDetails(false)
       toast.success('Details updated!',{
         position: toast.POSITION_TOP_RIGHT
       })
@@ -64,7 +69,39 @@ const Profile = () => {
         position: toast.POSITION_TOP_RIGHT
       })
     }
+    formik.setValues({...formik.values, ...userDetails})
+    console.log(formik.values);
   }
+
+  const getUserDetails = async () => {
+    // const details = []
+    // const detailRef = await getDoc(collection(db, 'users'))
+    const detailRef = doc(db, "users", user.uid);
+    const detailSnap = await getDoc(detailRef);
+
+    if (detailSnap.exists()) {
+      console.log("Document data:", detailSnap.data());
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log("No such document!");
+    }
+
+    try{
+      setUserDetails({...detailSnap.data()})
+      console.log(userDetails);
+    }catch (err){
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
+    getUserDetails()
+  
+    return () => {
+      
+    }
+  }, [])
+  
 
   return (
     <Template>
@@ -79,37 +116,54 @@ const Profile = () => {
                 <BiEdit size={'20'} />
               </button>
           </div>
-          {editImage && <div className='max-w-lg w-full mx-auto'>
-              <fieldset className='flex flex-col gap-2 pt-10 pb-5'>
-              <label htmlFor="photo">Enter Url</label>
-              <input type="text" name='photo' id='photo' value={formik.values.photo} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder='Enter image url' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
-              {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>}
-            </fieldset>
-            <div className='flex py-3 justify-end'>
-              <button type='button' onClick={handlePhotoChange} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
+          {(editDetails == true) && 
+            <div className="flex flex-col gap-4 mx-auto max-w-lg w-full">
+              {editImage && <div className='w-full mx-auto'>
+                  <fieldset className='flex flex-col gap-2 pt-10 pb-5'>
+                  <label htmlFor="photo">Enter Url</label>
+                  <input type="text" name='photo' id='photo' value={formik.values.photo} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder='Enter image url' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
+                  {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>}
+                </fieldset>
+                <div className='flex py-3 justify-end'>
+                  <button type='button' onClick={handlePhotoChange} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
+                </div>
+              </div>
+              }
+              <div className='w-full mx-auto flex flex-col gap-4 pt-10'>
+                  <fieldset className='flex flex-col gap-2 pb-5'>
+                    <label htmlFor="username">Enter Username</label>
+                    <input type="text" name='username' id='username' value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur}  placeholder='Enter your Username' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
+                    {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
+                  </fieldset>
+                  <fieldset className='flex flex-col gap-2 pb-5'>
+                      <label htmlFor="bio">Enter Bio</label>
+                      <textarea name='bio' id='bio' value={formik.values.bio}  onChange={formik.handleChange} onBlur={formik.handleBlur} rows={'5'} maxLength={250} placeholder='Enter your bio' className='resize-none rounded-lg border-[1px] border-slate-950 px-4 py-2' ></textarea>
+                      {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
+                  </fieldset>
+                  <fieldset className='flex flex-col gap-2 pb-5'>
+                    <label htmlFor="location">Enter Location</label>
+                    <input type="text" name='location' id='location' value={formik.values.location} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder='Enter your location e.g California, USA' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
+                    {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
+                  </fieldset>
+                <div className='flex py-3 justify-end'>
+                  <button type='button' onClick={handleDetailsChange} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
+                </div>
+              </div>
             </div>
+          }
+
+          
+
+          {(userDetails && editDetails == false) &&
+          <div className='flex flex-col gap-4 mx-auto py-4 text-center max-w-lg'>
+            <h2 className='text-2xl font-bold text-slate-970'>{userDetails.username}</h2>
+            <p className='text-base text-slate-700'>{userDetails.bio}</p>
+            <p className='text-base text-slate-400'>{userDetails.location}</p>
+            <div><div className='flex py-3 justify-end'>
+                <button type='button' onClick={()=>setEditDetails(true)} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>{userDetails ? 'Add details' : 'Edit'}</button>
+              </div></div>
           </div>
           }
-          <div className='max-w-lg w-full mx-auto flex flex-col gap-4 pt-10'>
-              <fieldset className='flex flex-col gap-2 pb-5'>
-                <label htmlFor="username">Enter Username</label>
-                <input type="text" name='username' id='username' value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur}  placeholder='Enter your Username' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
-                {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
-              </fieldset>
-              <fieldset className='flex flex-col gap-2 pb-5'>
-                  <label htmlFor="bio">Enter Bio</label>
-                  <textarea name='bio' id='bio' value={formik.values.bio} onChange={formik.handleChange} onBlur={formik.handleBlur} rows={'5'} maxLength={250} placeholder='Enter your bio' className='resize-none rounded-lg border-[1px] border-slate-950 px-4 py-2' ></textarea>
-                  {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
-              </fieldset>
-              <fieldset className='flex flex-col gap-2 pb-5'>
-                <label htmlFor="location">Enter Location</label>
-                <input type="text" name='location' id='location' value={formik.values.location} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder='Enter your location e.g California, USA' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
-                {/* {formik.touched.photo && formik.errors.photo && <p className='text-xs py-0.5 text-red-500'>{formik.errors.photo}</p>} */}
-              </fieldset>
-            <div className='flex py-3 justify-end'>
-              <button type='button' onClick={handleDetailsChange} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
-            </div>
-          </div>
       </div>
 
       <ToastContainer autoClose={1500} />
