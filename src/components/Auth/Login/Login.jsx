@@ -25,9 +25,9 @@ const Login = () => {
         logWithEmail:""
     })
 
-    sessionStorage.setItem('beforeLogin', location.state?.from?.pathname)
+    sessionStorage.setItem('beforeLogin', location.state?.from?.pathname || '/')
 
-    const beforeUrl = sessionStorage.getItem('beforeLogin') || '/dashboard'
+    const beforeUrl = (sessionStorage.getItem('beforeLogin') !== undefined && sessionStorage.getItem('beforeLogin')) || '/'
 
     const formik = useFormik({
         initialValues:{

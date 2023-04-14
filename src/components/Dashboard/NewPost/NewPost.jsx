@@ -8,7 +8,7 @@ import { db, auth, storage } from '../../../utils/firebase'
 import { toast, ToastContainer } from 'react-toastify'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import Template from '../Template/Template'
-import { useNavigation } from 'react-router-dom'
+import { Navigate, useNavigation } from 'react-router-dom'
 
 
 const NewPost = () => {
@@ -16,7 +16,7 @@ const NewPost = () => {
    const [banner, setBanner] = useState('') 
    const [uploadProgress, setUploadProgress] = useState(null) 
    const [postLoading, setPostLoading] = useState(false) 
-   const navigate = useNavigation()
+//    const navigate = useNavigation()
    const [data, setData] = useState({
         title:"",
         post:"",
@@ -142,7 +142,7 @@ const NewPost = () => {
                     position: toast.POSITION_TOP_RIGHT
                 })
                 setTimeout(() => {
-                    navigate('/')
+                    window.location.href = '/'
                 }, 2500);
             }
     }catch (err) {
