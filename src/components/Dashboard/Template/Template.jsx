@@ -1,8 +1,7 @@
 import React from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import {FaEdit} from 'react-icons/fa'
-import { NavLink } from 'react-router-dom'
 import { auth } from '../../../utils/firebase'
+import AddPostLink from '../../Elements/Links/AddPostLink'
 
 const Template = ({id, title, children, showPost}) => {
   const [loading] = useAuthState(auth)
@@ -15,9 +14,7 @@ const Template = ({id, title, children, showPost}) => {
           &&
           showPost
           &&
-          <div className='fixed bottom-6 right-4 '>
-            <NavLink to={'/post/add'} className=''><div className='bg-white px-4 py-4 rounded-full drop-shadow-md'><FaEdit /></div></NavLink>
-          </div>
+          <AddPostLink />
         }
     </div>
   )
