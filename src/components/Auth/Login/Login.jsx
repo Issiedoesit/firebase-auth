@@ -1,13 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useFormik } from 'formik'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
 import { BsFacebook } from 'react-icons/bs'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import * as Yup from 'yup'
 import YupPassword from 'yup-password'
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth'
 import {auth} from '../../../utils/firebase'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 YupPassword(Yup)
 
 
@@ -15,7 +18,16 @@ YupPassword(Yup)
 const Login = () => {
 
     const [passwordVisible, setPasswordVisible] = useState(false)
+    const [user, loading] = useAuthState(auth)
+    const navigate = useNavigate()
+    const location = useLocation()
+    const [errors, setErrors] = useState({
+        logWithEmail:""
+    })
 
+    sessionStorage.setItem('beforeLogin', location.state?.from?.pathname)
+
+    const beforeUrl = sessionStorage.getItem('beforeLogin') || '/dashboard'
 
     const formik = useFormik({
         initialValues:{
@@ -48,21 +60,51 @@ const Login = () => {
 
     const googleProvider = new GoogleAuthProvider()
 
+   
+    
+
     const GoogleLogin = async () => {
         try{
             const result = await signInWithPopup(auth, googleProvider)
+            toast.success("Welcome!", {
+                position: toast.POSITION.TOP_RIGHT
+            })
             console.log(result.user)
         }catch{
-            console.error(error)
+            console.error(err)
         }
     }
+
+    const emailLogin = () => {
+        signInWithEmailAndPassword(auth, formik.values.email, formik.values.password).then(()=>{
+            toast.success("Logged in! Redirecting...", {
+                position: toast.POSITION.TOP_RIGHT
+            })
+             setTimeout(() => {
+                navigate(beforeUrl)
+            }, 3000);
+        }).catch((err)=>{
+            console.error(err)
+            toast.error("You don't have an account with us! Please sign up.", {
+                position: toast.POSITION.TOP_RIGHT
+                
+            })
+        })
+    }
+    
+    useEffect(() => {
+        if (user) {
+            navigate(beforeUrl)
+        }
+      }, [user, navigate])
+      
 
   return (
     <div className='min-h-screen py-20 w-full relative flex flex-row items-center justify-center px-4 sm:px-8'>
         <div className="relative px-10 py-8 text-slate-800 rounded-3xl drop-shadow-lg max-w-lg w-full md:w-3/5 bg-white">
             <h1 className='text-2xl text-center py-2 font-bold'>Login</h1>
 
-            <form action="" method='post' onSubmit={formik.handleSubmit} className={'flex flex-col w-full gap-4 pt-6'}>
+            <form action="" method='post' onSubmit={formik.onSubmit} className={'flex flex-col w-full gap-4 pt-6'}>
 
                 <button type='button' onClick={GoogleLogin} className='border border-slate-800 flex items-center gap-4 text-center rounded-md w-full px-4 py-2'>
                     <FcGoogle size={'24'} />
@@ -113,13 +155,14 @@ const Login = () => {
                 </fieldset>
 
                 <div className='pt-2 pb-6 w-full flex justify-center'>
-                    <button type='submit' className='font-sm rounded-lg bg-slate-800 text-white px-4 py-2 w-fit mx-auto'>Login</button>
+                    <button type='button' onClick={emailLogin} className='font-sm rounded-lg bg-slate-800 text-white px-4 py-2 w-fit mx-auto'>Login</button>
                 </div>
             </form>
             <div className='text-center'>
                 <NavLink to={'/auth/signup'} className="text-sm">Don't have an account? <span className='underline underline-offset-2 text-blue-400'>Register with us</span></NavLink>
             </div>
         </div>
+        <ToastContainer autoClose={2000} />
     </div>
   )
 }

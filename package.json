@@ -17,6 +17,9 @@
     "react-firebase-hooks": "^5.1.1",
     "react-icons": "^4.8.0",
     "react-router-dom": "^6.10.0",
+    "react-slugify": "^3.0.2",
+    "react-spinners": "^0.13.8",
+    "react-toastify": "^9.1.2",
     "yup": "^1.1.0",
     "yup-password": "^0.2.2",
     "zustand": "^4.3.7"
