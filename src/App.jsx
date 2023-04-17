@@ -10,8 +10,10 @@ import Index from './components/Index/Index'
 import { auth } from './utils/firebase'
 import PrivateRoute from './contexts/PrivateRoute'
 import Profile from './components/Settings/Profile/Profile'
-import NewPost from './components/Dashboard/NewPost/NewPost'
+import NewPost from './components/Posts/NewPost/NewPost'
 import PostPrivateRoute from './contexts/PostPrivateRoute'
+import SinglePost from './components/Posts/SinglePost/SinglePost'
+import User from './components/Dashboard/User/User'
 
 function App() {
   const [user, loading] = useAuthState(auth)
@@ -21,6 +23,7 @@ function App() {
       <div>
         <Routes>
           <Route index path='/' element={<Index />} />
+            <Route path=':slug' element={<User />} />
             <Route path="/dashboard" element={<PrivateRoute />} >
               <Route path='' element={<Home />} />
               <Route path='about' element={<About />} />
@@ -30,6 +33,7 @@ function App() {
             </Route>
               <Route path='post' element={<PostPrivateRoute />}>
                 <Route path='add' element={<NewPost />} />
+                <Route path=':slug' element={<SinglePost />} />
               </Route>
           <Route path='/auth'>
               <Route path='login'  element={<Login />} />

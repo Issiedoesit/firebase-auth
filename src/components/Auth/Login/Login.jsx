@@ -7,10 +7,11 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import * as Yup from 'yup'
 import YupPassword from 'yup-password'
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth'
-import {auth} from '../../../utils/firebase'
+import {auth, db} from '../../../utils/firebase'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { doc, setDoc } from 'firebase/firestore'
 YupPassword(Yup)
 
 
@@ -66,11 +67,23 @@ const Login = () => {
     const GoogleLogin = async () => {
         try{
             const result = await signInWithPopup(auth, googleProvider)
+            const fullName = result.user.displayName
+            const fullNameLength = fullName.split(' ').length
+            setDoc(doc(db, "users", result.user.uid), {
+                username: "user"+result.user.uid,
+                bio: "Hi, I'm " + result.user.displayName+". Nice to meet you :)",
+                location: "",
+                photo:result.user.photoURL,
+                firstName:fullName.split(" ")[0],
+                lastName:fullName.split(" ")[fullNameLength - 1],
+                fullName:result.user.displayName,
+                email:result.user.email
+              });
             toast.success("Welcome!", {
                 position: toast.POSITION.TOP_RIGHT
             })
             console.log(result.user)
-        }catch{
+        }catch(err){
             console.error(err)
         }
     }

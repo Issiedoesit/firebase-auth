@@ -6,9 +6,11 @@ import {FaPenFancy} from 'react-icons/fa'
 import {ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, auth, storage } from '../../../utils/firebase'
 import { toast, ToastContainer } from 'react-toastify'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
-import Template from '../Template/Template'
+import { addDoc, collection, serverTimestamp, doc } from 'firebase/firestore'
+import Template from '../../Dashboard/Template/Template'
 import { Navigate, useNavigation } from 'react-router-dom'
+import slugify from 'react-slugify';
+import { SHA256 } from 'crypto-js'
 
 
 const NewPost = () => {
@@ -20,8 +22,9 @@ const NewPost = () => {
    const [data, setData] = useState({
         title:"",
         post:"",
-        authorId:auth.currentUser.uid
    })
+
+   
 
    const MAX_FILE_SIZE = 1024000; //1000KB
 
@@ -94,6 +97,14 @@ const NewPost = () => {
 
    console.log(data);
 
+   function generateUniqueId() {
+    const timestamp = new Date().getTime(); // Get the current timestamp in milliseconds
+    const randomString = Math.random().toString(36).substring(2); // Generate a random string
+    const input = import.meta.env.VITE_CRYPTO_SECRET + timestamp + randomString; // Concatenate the secret key, timestamp, and random string
+    const hash = SHA256(input).toString(); // Generate the SHA-256 hash of the input
+    return hash.substring(0, 8); // Return the first 8 characters of the hash
+  }
+
    const createPost = async () => {
     try{
         if(!banner){
@@ -121,19 +132,25 @@ const NewPost = () => {
             return
         }
 
-            console.log(data);
+            // console.log(data);
             if(formik.values.post && banner && formik.values.title){
                 setPostLoading(true)
+                const slug = `${slugify(formik.values.title)}-${generateUniqueId()}`;
+                console.log(slug);
                 setData({...data, title: formik.values.title, post:formik.values.post})
                 await addDoc(collection(db, "posts"), {
                     ...data,
                     title: formik.values.title,
                     post: formik.values.post,
-                    authorId: auth.currentUser.uid,
+                    authorId:auth.currentUser.uid,
                     timeStamp: serverTimestamp(),
                     createdAt: new Date(),
-                    isFeatured:false
+                    isFeatured:false,
+                    slug:slug
                 });
+                const userRef = doc(db, 'users', auth.currentUser.uid)
+                console.log("UserRef", "=>" , userRef);
+                console.log("New post Data", "=>", data);
                 setPostLoading(false)
                 setData({})
                 setBanner('')
@@ -159,7 +176,7 @@ const NewPost = () => {
             <div className='text-3xl pb-10 font-bold text-center'><h1>Add new blog</h1></div>
             <fieldset className='w-full'>
                 <p className='text-left pb-2'>Add banner image</p>
-                <label htmlFor="bannerImg" className='flex py-4 rounded-lg border-[1px] border-slate-950 px-4 w-full'>
+                <label htmlFor="bannerImg" className={`flex py-4 rounded-lg border-[1px] border-slate-950 px-4 w-full ${((uploadProgress !== null && uploadProgress < 100) || postLoading) && 'pointer-events-none'}`}>
                     {
                         banner
                         ?
@@ -168,7 +185,7 @@ const NewPost = () => {
                         <FcAddImage size={'80'} className={'mx-auto'} />
                     }
                 </label>
-                <input type="file" name='bannerImg' id='bannerImg' onChange={(e)=>setBanner(e.target.files[0])} className='hidden' />
+                <input readOnly={(uploadProgress !== null && uploadProgress < 100) || postLoading} type="file" name='bannerImg' id='bannerImg' onChange={(e)=>setBanner(e.target.files[0])} className='hidden' />
                 <div className='py-2'>
                 {uploadProgress > 0 && uploadProgress < 100 && <div className='w-full rounded-lg border-[1px] border-green-500 bg-white'><div className='py-0.5 rounded-lg bg-green-500 text-white text-xs text-right px-2' style={{width:`${uploadProgress}%`}}>{Math.round(uploadProgress)}%</div></div>}
                 </div>
