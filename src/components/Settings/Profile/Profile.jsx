@@ -3,6 +3,8 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../../../utils/firebase'
 import Template from '../../Dashboard/Template/Template'
 import {FaUserCircle} from 'react-icons/fa'
+import { MdLocationCity } from 'react-icons/md'
+import { BsFillCalendarHeartFill } from 'react-icons/bs'
 import {BiEdit} from 'react-icons/bi'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -10,6 +12,8 @@ import { toast, ToastContainer } from 'react-toastify'
 import { updateProfile } from 'firebase/auth'
 import {  collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore"
 import { db } from '../../../utils/firebase'
+import slugify from 'react-slugify';
+import getDateFromTextString from '../../../utils/GetDateFromTextString'
 
 
 const Profile = () => {
@@ -21,6 +25,7 @@ const Profile = () => {
   })
   const [editDetails, setEditDetails] = useState(false)
   const [noBio, setNoBio] = useState(false)
+
 
   const formik = useFormik({
     initialValues:{
@@ -44,6 +49,8 @@ const Profile = () => {
       .required('Location required'),
     })
   })
+
+  const touchedNoDetail = !formik.touched.bio && !formik.touched.username && !formik.touched.username
 
   const handlePhotoChange = () => {
     updateProfile(auth.currentUser, {
@@ -93,13 +100,19 @@ const Profile = () => {
     if(isUnique == false || formik.errors.username || formik.errors.location || formik.errors.bio){
       return
     }
+    if(touchedNoDetail){
+      setEditDetails(false)
+      return
+    }
 
     try{
       await updateDoc(doc(db, "users", user.uid), {
         // ...formik.values,
         username: formik.values.username,
         bio: formik.values.bio,
-        location: formik.values.location
+        location: formik.values.location,
+        slug:slugify(formik.values.username),
+        createdAt:user.metadata.creationTime
       });
       console.log("Detail update data", "=>", formik.values);
       setEditDetails(false)
@@ -154,12 +167,14 @@ const Profile = () => {
   }, [])
   
 
+  const joined = getDateFromTextString(user.metadata.creationTime)
+
   return (
     <Template>
       <div className='flex flex-col py-20'>
           <div className='relative h-fit w-fit mx-auto'>
               {user.photoURL ?
-                  <img src={user.photoURL} alt={user.displayName} className={`rounded-full h-32 w-32 mx-auto object-cover`} />
+                  <img src={user.photoURL} alt={user.displayName} className={`rounded-full h-32 w-32 mx-auto object-cover skeleton`} />
                   :
                   <FaUserCircle className='h-32 w-32 mx-auto' />
               }
@@ -199,8 +214,9 @@ const Profile = () => {
                     <input type="text" name='location' id='location' value={formik.values.location} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder='Enter your location e.g California, USA' className='rounded-lg border-[1px] border-slate-950 px-4 py-2' />
                     {formik.touched.location && formik.errors.location && <p className='text-xs py-0.5 text-red-500'>{formik.errors.location}</p>}
                   </fieldset>
-                <div className='flex py-3 justify-end'>
-                  <button type='button' onClick={handleDetailsChange} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
+                <div className='flex py-3 justify-end gap-5'>
+                  {editDetails == true && <button type='button' onClick={()=>setEditDetails(false)} className='font-sm rounded-lg bg-red-600 text-white px-4 py-2 w-fit'>{'Cancel'}</button>}
+                  <button type='button' onClick={handleDetailsChange} title={`${touchedNoDetail && 'Please make changes to save'}`} disabled={touchedNoDetail} className='font-sm rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed bg-slate-950 text-white px-4 py-2 w-fit'>Save</button>
                 </div>
               </div>
             </div>
@@ -213,8 +229,9 @@ const Profile = () => {
             <h2 className='text-2xl font-bold text-slate-970'>@{userDetails.username}</h2>
             <h2 className='text-lg font-bold text-slate-970'>{user.displayName}</h2>
             <p className='text-base text-slate-700'>{userDetails.bio}</p>
-            <p className='text-base text-slate-400'>{userDetails.location}</p>
-            <div><div className='flex py-3 justify-end'>
+            <p className='text-base text-slate-400 flex gap-2 items-center'><MdLocationCity className={`text-slate-400`} /><span>{userDetails.location}</span></p>
+            <p className='text-base text-slate-400 flex gap-2 items-center'><BsFillCalendarHeartFill className={`text-slate-400`} /><span>Joined {joined.monthText} {joined.year}</span></p>
+            <div><div className='flex py-3 justify-end gap-5'>
                 <button type='button' onClick={()=>handleEditButton()} className='font-sm rounded-lg bg-slate-950 text-white px-4 py-2 w-fit'>{noBio ? 'Add details' : 'Edit'}</button>
               </div></div>
           </div>

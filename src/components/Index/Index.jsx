@@ -8,11 +8,13 @@ import {FaUserCircle} from 'react-icons/fa'
 import { Navigate, NavLink } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import useSWR from 'swr';
-import timeSince from '../../utils/GetDate';
+import fetchAuthorData from '../../utils/FetchAuthorData';
+import getDateFromTimestamp from '../../utils/GetDateFromTimestamp';
 
 const Index = () => {
   const [data, setData] = useState([])
   const [user] = useAuthState(auth)
+  
 
   // if(!user) {return window.location.href = '/auth/login'}
 
@@ -92,31 +94,18 @@ const Index = () => {
           result[0] && temp.push({id:doc.id, authorData: userData,  ...doc.data()})
           result[0] && setData([...temp]);
     
-          setLoading(false)
         })
+        setLoading(false)
     };
     }catch (err) {
+      setLoading(false)
       console.error(err);
     }
     return data
     // Set all authorDp to the closest one with a non-empty value
   }
 
-  const fetchAuthorData = async (id) => {
-    const userRef = doc(db, "users", id);
-    const userSnap = await getDoc(userRef);
-    let temp = []
-
-    if (userSnap.exists()) {
-      temp.push(userSnap.data())
-    } else {
-      // userSnap.data() will be undefined in this case
-      console.log("No such document!");
-    }
-
-    // console.log(temp);
-    return temp
-  }
+  
 
 
   const postData = useSWR('posts', fetchAllPosts, {refreshInterval: 300000, loadingTimeout: 1000})
@@ -124,13 +113,6 @@ const Index = () => {
   
 
   
-  const getDate = (timestamp) => {
-    const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-    const createdAtDate = `${date.toLocaleDateString()}`;
-    const createdAtTime = `${date.toLocaleTimeString()}`;
-    console.log(timeSince(timestamp));
-    return {"date":createdAtDate, "time":createdAtTime, "interval":timeSince(timestamp)}
-  }
 
   return (
     <div>
@@ -159,7 +141,7 @@ const Index = () => {
                           <p className="text-gray-600 four-lined-text">{post.post}</p>
                         </div>
                         {
-                          post.authorData && <NavLink to={`/${post.authorData.username}`} className='flex items-center gap-2'>
+                          post.authorData && <NavLink to={`/${post.authorData.slug}`} className='flex items-center gap-2'>
                             {post.authorData.photo && post.authorData.fullName ? <img src={post.authorData.photo} alt={post.authorData.fullName} className="h-10 w-10 rounded-full object-cover skeleton" /> : <FaUserCircle size={'32'} />}
                             <div>
                               <p>{post.authorData.fullName}</p>
@@ -167,7 +149,7 @@ const Index = () => {
                           </NavLink>
                         }
                         <div className='py-2'>
-                          <span className='text-xs text-gray-400'>{getDate(post.createdAt).interval}</span>
+                          <span className='text-xs text-gray-400'>{getDateFromTimestamp(post.createdAt).interval}</span>
                         </div>
                       </div>
                     </div>

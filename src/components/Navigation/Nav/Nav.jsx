@@ -49,7 +49,7 @@ const Nav = () => {
                                     <button className='flex items-center' onMouseOver={()=>setProfileDropDown(true)} onClick={()=>setProfileDropDown(prevProfileDropDown => !prevProfileDropDown)}>
                                         {user.photoURL ? <img src={user.photoURL} alt={user.displayName} className="h-10 w-10 rounded-full object-cover" /> : <FaUserCircle size={'32'} />}
                                     </button>
-                                    <div className={`${profileDropDown ? 'visible opacity-100 translate-y-0' : 'invisible opacity-0 translate-y-2'} transition-all ease-in-out duration-500 drop-shadow-md flex flex-col border-[1px] absolute top-[120%] right-0 bg-white rounded-lg px-2 pt-2 pb-4`}>
+                                    <div className={`${profileDropDown ? 'visible opacity-100 translate-y-0' : 'invisible opacity-0 translate-y-2'} transition-all z-50 ease-in-out duration-500 drop-shadow-md flex flex-col border-[1px] absolute top-[120%] right-0 bg-white rounded-lg px-2 pt-2 pb-4`}>
                                         <NavLink to={'/dashboard/settings/profile'} className={`text-slate-950 whitespace-nowrap border-b border-b-slate-950 py-2 text-sm xs:pr-0 pr-6 flex gap-4 items-center`} ><FaUserEdit /><span className='xs:hidden block'>Profile</span></NavLink>
                                         <NavLink to={'/dashboard/settings/profile'} className={`text-slate-950 whitespace-nowrap border-b border-b-slate-950 py-2 text-sm xs:pr-0 pr-6 flex gap-4 items-center`} ><FiSettings /> <span className='xs:hidden block'>Settings</span></NavLink>
                                     </div>

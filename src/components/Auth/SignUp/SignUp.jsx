@@ -12,6 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import slugify from 'react-slugify';
 YupPassword(Yup)
 
 const SignUp = () => {
@@ -115,7 +116,9 @@ const SignUp = () => {
                 firstName:formik.values.firstName,
                 lastName:formik.values.lastName,
                 fullName:`${formik.values.firstName} ${formik.values.lastName}`,
-                email:formik.values.email
+                email:formik.values.email,
+                slug:slugify(formik.values.userName),
+                createdAt:result.user.metadata.creationTime
               });
               toast.success('Details updated!',{
                 position: toast.POSITION_TOP_RIGHT
