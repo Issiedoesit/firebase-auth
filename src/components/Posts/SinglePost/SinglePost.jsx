@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { BarLoader, PuffLoader, RiseLoader } from 'react-spinners'
 import fetchAuthorData from '../../../utils/FetchAuthorData'
 import { db } from '../../../utils/firebase'
-// import getDate from '../../../utils/getDate'
+import timeSince from '../../../utils/getDate'
 import useSWR from 'swr'
 
 const SinglePost = () => {
@@ -62,7 +62,7 @@ const SinglePost = () => {
                     </div>
 
                     <div>
-                      <p className='text-xs'>Posted {getDate(post.createdAt)}</p>
+                      <p className='text-xs'>Posted {timeSince(post.createdAt)}</p>
                     </div>
                   </div>
                 </div>
