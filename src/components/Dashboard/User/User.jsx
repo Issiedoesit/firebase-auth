@@ -154,6 +154,12 @@ const User = () => {
             <p className="pb-2 text-sm text-rose-500">*** Not implemented yet ***</p>
             <p>{isUser ? 'You have no likes yet' : `${currentUserData[0].username} has no likes yet `}</p>
             <p className='pt-5 font-bold text-2xl'>{isUser && 'Want to see posts to like?'}</p>
+            {isUser
+            &&
+            <div className='flex py-3 gap-5'>
+              <NavLink to={'/'} className='mx-auto font-sm rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed bg-slate-950 text-white px-4 py-2 w-fit'>See timeline</NavLink>
+            </div>
+            }
         </div>
         }
         <AddPostLink />
