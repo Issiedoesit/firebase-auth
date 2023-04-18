@@ -5,6 +5,7 @@ import { BarLoader, PuffLoader, RiseLoader } from 'react-spinners'
 import fetchAuthorData from '../../../utils/FetchAuthorData'
 import { db } from '../../../utils/firebase'
 import timeSince from '../../../utils/TimeSince';
+import formatPostUrl from '../../../utils/formatPostUrl';
 import useSWR from 'swr'
 
 const SinglePost = () => {
@@ -39,20 +40,7 @@ const SinglePost = () => {
   const postData = useSWR(`/post/${postSlug}`, fetchPost,{loadingTimeout:3000})
   console.log("postData =>", postData.data);
 
-  const detectUrls = (text) => { 
-    const urlRegex = /(https?:\/\/[^\s]+)/g; 
-    return text.match(urlRegex); 
-  }
 
-  const formatPostForUrl = (postText) =>  { 
-    const urls = detectUrls(postText); 
-    let formattedPostText = postText; 
-    if (urls !== null) { 
-      for(let i = 0; i < urls.length; i++) 
-      { formattedPostText = formattedPostText.replace(urls[i], `<a class="text-blue-500" href="${urls[i]}" target="_blank" rel="noopener noreferrer">${urls[i]}</a>`); } 
-    } 
-    return formattedPostText; 
-  }
 
 
 
@@ -87,7 +75,7 @@ const SinglePost = () => {
             </div>
             <div className='pb-20 px-8 md:px-10 max-w-xl mx-auto'>
               {post.post.split(/\n\s*\n/).map((text, idx)=>{
-                return <div className={`py-5`} key={idx}><div dangerouslySetInnerHTML={{ __html: formatPostForUrl(text) }} /></div>
+                return <div className={`py-5`} key={idx}><div dangerouslySetInnerHTML={{ __html: formatPostUrl(text) }} /></div>
               })}
             </div>
         </div>
