@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { BarLoader, PuffLoader, RiseLoader } from 'react-spinners'
 import fetchAuthorData from '../../../utils/FetchAuthorData'
 import { db } from '../../../utils/firebase'
-import getDate from '../../../utils/getDate'
+// import getDate from '../../../utils/getDate'
 import useSWR from 'swr'
 
 const SinglePost = () => {
