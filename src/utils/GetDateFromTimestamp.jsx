@@ -1,5 +1,6 @@
 import React from 'react'
-import timeSince from './getDate';
+import timeSince from './TimeSince';
+
 
 const getDateFromTimestamp = (timestamp) => {
     const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
