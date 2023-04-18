@@ -115,7 +115,7 @@ const User = () => {
               ?
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-16 py-10 px-8 md:px-12 lg:px-20'>
                     {currentUserPosts && currentUserPosts.length != 0 && currentUserPosts.sort((a, b)=>b.createdAt - a.createdAt).map((post, idx)=>{
-                        return <NavLink to={`post/${post.slug}`} key={idx}>
+                        return <NavLink to={`/post/${post.slug}`} key={idx}>
                           <div className='flex flex-col md:flex-row gap-8'>
                             <img src={post.bannerImage} alt="" className='skeleton w-full aspect-video lg:aspect-auto object-cover min-w-[160px] lg:h-40 lg:w-40 rounded-lg drop-shadow-md' />
                             <div className='pr-4'>
