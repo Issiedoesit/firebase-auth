@@ -5,7 +5,7 @@ import { BarLoader, PuffLoader, RiseLoader } from 'react-spinners'
 import fetchAuthorData from '../../../utils/FetchAuthorData'
 import { auth, db } from '../../../utils/firebase'
 import timeSince from '../../../utils/TimeSince';
-import formatPostUrl from '../../../utils/formatPostUrl';
+import formatPostUrl from '../../../utils/FormatPostUrl';
 import useSWR from 'swr'
 import {BsArrowThroughHeartFill, BsHeart} from 'react-icons/bs'
 import {TfiComment} from 'react-icons/tfi'
