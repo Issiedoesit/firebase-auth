@@ -6,6 +6,7 @@ import { auth } from './utils/firebase'
 import PrivateRoute from './contexts/PrivateRoute'
 import PostPrivateRoute from './contexts/PostPrivateRoute'
 import FallBackLoader from './components/Elements/Loaders/FallBackLoader'
+import UserPrivateRoute from './contexts/UserPrivateRoute'
 const User = lazy(()=>import('./components/Dashboard/User/User'))
 const SinglePost = lazy(()=>import('./components/Posts/SinglePost/SinglePost'))
 const NewPost = lazy(()=>import('./components/Posts/NewPost/NewPost'))
@@ -43,7 +44,9 @@ function App() {
         <Suspense fallback={<FallBackLoader />}>
           <Routes>
             <Route index path='/' element={<Index />} />
-              <Route path=':slug' element={<User />} />
+              <Route path=':slug' element={<UserPrivateRoute />}>
+                <Route path='' element={<User />} />
+              </Route>
               <Route path="/dashboard" element={<PrivateRoute />} >
                 <Route path='' element={<Home />} />
                 <Route path='about' element={<About />} />
@@ -51,10 +54,10 @@ function App() {
                   <Route path='profile' element={<Profile />} />
                 </Route>
               </Route>
-                <Route path='post' element={<PostPrivateRoute />}>
-                  <Route path='add' element={<NewPost />} />
-                  <Route path=':slug' element={<SinglePost />} />
-                </Route>
+              <Route path='post' element={<PostPrivateRoute />}>
+                <Route path='add' element={<NewPost />} />
+                <Route path=':slug' element={<SinglePost />} />
+              </Route>
             <Route path='/auth'>
                 <Route path='login'  element={<Login />} />
                 <Route path='signup'  element={<SignUp />} />

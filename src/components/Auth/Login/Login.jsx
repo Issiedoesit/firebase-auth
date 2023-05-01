@@ -10,7 +10,7 @@ import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 
 import {auth, db} from '../../../utils/firebase'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.min.css';
 import { doc, setDoc } from 'firebase/firestore'
 YupPassword(Yup)
 
@@ -93,7 +93,7 @@ const Login = () => {
             toast.success("Logged in! Redirecting...", {
                 position: toast.POSITION.TOP_RIGHT
             })
-             setTimeout(() => {
+            setTimeout(() => {
                 navigate(beforeUrl)
             }, 3000);
         }).catch((err)=>{

@@ -20,6 +20,13 @@ const Nav = () => {
         
       }
     }, [location])
+
+    const logOut = () => {
+        auth.signOut()
+        if(location.pathname !== '' || location.pathname !== '/'){
+            window.location.href = '/auth/login'
+        }
+    }
     
 
     console.log(user);
@@ -54,7 +61,7 @@ const Nav = () => {
                                         <NavLink to={'/dashboard/settings/profile'} className={`text-slate-950 whitespace-nowrap border-b border-b-slate-950 py-2 text-sm xs:pr-0 pr-6 flex gap-4 items-center`} ><FiSettings /> <span className='xs:hidden block'>Settings</span></NavLink>
                                     </div>
                                 </div>
-                                <button type='button'onClick={()=>auth.signOut()} className={'bg-white rounded-lg px-2 md:px-4 py-2 text-slate-900 font-semibold flex items-center gap-2'}><span className='hidden md:block'>Logout</span> <BiLogOut size={''} /></button>
+                                <button type='button'onClick={()=>logOut()} className={'bg-white rounded-lg px-2 md:px-4 py-2 text-slate-900 font-semibold flex items-center gap-2'}><span className='hidden md:block'>Logout</span> <BiLogOut size={''} /></button>
                             </div>
                             }
                         </div>

@@ -188,8 +188,9 @@ const User = () => {
                       })}
                 </div>
               :
-              <div className='py-20 text-center text-slate-950'>
-                  <p>{isUser ? 'You have no posts yet' : `${currentUserData[0].username} has no posts yet `}</p>
+              <div className='py-40 text-center text-slate-950'>
+                  <p>{isUser && 'You have no posts yet'}</p>
+                  {currentUserData[0]?.username !== undefined && <p>{currentUserData[0].username} has no posts yet</p>}
                   <p className='pt-5 font-bold text-2xl'>{isUser && 'Add new post'}</p>
               </div>
             }
