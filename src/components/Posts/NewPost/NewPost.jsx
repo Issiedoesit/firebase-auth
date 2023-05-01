@@ -6,6 +6,7 @@ import {FaPenFancy} from 'react-icons/fa'
 import {ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, auth, storage } from '../../../utils/firebase'
 import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.min.css';
 import { addDoc, collection, serverTimestamp, doc } from 'firebase/firestore'
 import Template from '../../Dashboard/Template/Template'
 import { Navigate, useNavigation } from 'react-router-dom'

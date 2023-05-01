@@ -9,11 +9,13 @@ import {BiEdit} from 'react-icons/bi'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.min.css';
 import { updateProfile } from 'firebase/auth'
 import {  collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore"
 import { db } from '../../../utils/firebase'
 import slugify from 'react-slugify';
 import getDateFromTextString from '../../../utils/GetDateFromTextString'
+import { NavLink } from 'react-router-dom'
 
 
 const Profile = () => {
@@ -226,7 +228,7 @@ const Profile = () => {
 
           {(editDetails == false) &&
           <div className='flex flex-col gap-4 mx-auto py-4 text-center max-w-lg'>
-            <h2 className='text-2xl font-bold text-slate-970'>@{userDetails.username}</h2>
+            <NavLink to={`/${userDetails.slug}`} className='text-2xl font-bold text-slate-950 hover:text-blue-400 transition-all duration-300 ease-in-out'>@{userDetails.username}</NavLink>
             <h2 className='text-lg font-bold text-slate-970'>{user.displayName}</h2>
             <p className='text-base text-slate-700'>{userDetails.bio}</p>
             <p className='text-base text-slate-400 flex gap-2 items-center'><MdLocationCity className={`text-slate-400`} /><span>{userDetails.location}</span></p>

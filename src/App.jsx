@@ -15,6 +15,15 @@ const SignUp = lazy(()=>import('./components/Auth/SignUp/SignUp'))
 const Home = lazy(()=>import('./components/Dashboard/Home/Home'))
 const About = lazy(()=>import('./components/Dashboard/About/About'))
 const Index = lazy(()=>import('./components/Index/Index'))
+// import User from './components/Dashboard/User/User'
+// import SinglePost from './components/Posts/SinglePost/SinglePost'
+// import NewPost from './components/Posts/NewPost/NewPost'
+// import Profile from './components/Settings/Profile/Profile'
+// import Login from './components/Auth/Login/Login'
+// import SignUp from './components/Auth/SignUp/SignUp'
+// import Home from './components/Dashboard/Home/Home'
+// import About from './components/Dashboard/About/About'
+// import Index from './components/Index/Index'
 
 
 function App() {

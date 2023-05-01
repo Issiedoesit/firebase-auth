@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import Nav from '../../Navigation/Nav/Nav'
 import Template from '../Template/Template'
-import { collection, doc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from '../../../utils/firebase';
 import {BsFillCalendarHeartFill} from 'react-icons/bs'
 import {MdLocationCity} from 'react-icons/md'
@@ -15,6 +15,8 @@ const User = () => {
     const [currentSlug, setCurrentSlug] = useState(location.pathname.split('/')[1])
     const [currentUserData, setCurrentUserData] = useState([])
     const [currentUserPosts, setCurrentUserPosts] = useState([])
+    const [hasLiked, setHasLiked] = useState(false)
+    const [likedPosts, setLikedPosts] = useState([])
     const [tab, setTab] = useState('posts')
 
     const tabData = [
@@ -57,6 +59,44 @@ const User = () => {
       return temp
   }
 
+  const fetchLikedPosts = async () => {
+    const userRef = doc(db, 'users', currentUserData[0].id)
+    const userSnap = await getDoc(userRef)
+
+    console.log('Liked posts userSnap:', userSnap.data())
+
+
+   
+  
+    const likedPosts = userSnap?.data().liked
+    const likedPostDocs = []
+
+
+    if (!likedPosts) {
+      // handle the case where likedPosts is undefined or null
+      return []
+    }
+  
+  
+    for (const postId of likedPosts) {
+      const postRef = doc(db, 'posts', postId)
+      const postSnap = await getDoc(postRef)
+      console.log('Liked posts postSnap:', postSnap)
+      if (postSnap.exists()) {
+        likedPostDocs.push(postSnap.data())
+      }
+    }
+
+    setHasLiked(true)
+  
+    // console.log('Liked posts:', likedPostDocs)
+    setLikedPosts([...likedPostDocs])
+    return likedPostDocs
+  }
+  
+
+    
+
   useEffect(() => {
     fetchAuthorData()
   
@@ -64,6 +104,14 @@ const User = () => {
       
     }
   }, [currentSlug])
+
+    useEffect(() => {
+      fetchLikedPosts()
+    
+      return () => {
+        
+      }
+    }, [currentUserData])
   
   let joined = ''
   if(currentUserData && currentUserData.length > 0){
@@ -111,7 +159,7 @@ const User = () => {
           &&
           <div>
             {
-              currentUserPosts
+              !currentUserPosts.length == 0
               ?
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-16 py-10 px-8 md:px-12 lg:px-20'>
                     {currentUserPosts && currentUserPosts.length != 0 && currentUserPosts.sort((a, b)=>b.createdAt - a.createdAt).map((post, idx)=>{
@@ -140,25 +188,57 @@ const User = () => {
                       })}
                 </div>
               :
-            <div className='py-20 text-center text-slate-950'>
-                <p>{isUser ? 'You have no posts yet' : `${currentUserData[0].username} has no posts yet `}</p>
-                <p className='pt-5 font-bold text-2xl'>{isUser && 'Add new post'}</p>
-            </div>
+              <div className='py-20 text-center text-slate-950'>
+                  <p>{isUser ? 'You have no posts yet' : `${currentUserData[0].username} has no posts yet `}</p>
+                  <p className='pt-5 font-bold text-2xl'>{isUser && 'Add new post'}</p>
+              </div>
             }
           </div>
         }
 
         {tab == 'likes'
         &&
-        <div className='py-28 text-center text-slate-950'>
-            <p className="pb-2 text-sm text-rose-500">*** Not implemented yet ***</p>
-            <p>{isUser ? 'You have no likes yet' : `${currentUserData[0].username} has no likes yet `}</p>
-            <p className='pt-5 font-bold text-2xl'>{isUser && 'Want to see posts to like?'}</p>
-            {isUser
-            &&
-            <div className='flex py-3 gap-5'>
-              <NavLink to={'/'} className='mx-auto font-sm rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed bg-slate-950 text-white px-4 py-2 w-fit'>See timeline</NavLink>
-            </div>
+        <div className='text-slate-950'>
+            {
+              hasLiked
+              ?
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-16 py-10 px-8 md:px-12 lg:px-20'>
+                {likedPosts && likedPosts.map((post, idx)=>{
+                   return <NavLink to={`/post/${post.slug}`} key={idx}>
+                   <div className='flex flex-col md:flex-row gap-8'>
+                     <img src={post.bannerImage} alt="" className='skeleton w-full aspect-video lg:aspect-auto object-cover min-w-[160px] lg:h-40 lg:w-40 rounded-lg drop-shadow-md' />
+                     <div className='pr-4'>
+                       <h2 className='text-2xl font-bold'>{post.title}</h2>
+                       <div className='py-3'>
+                         <p className="text-gray-600 four-lined-text">{post.post}</p>
+                       </div>
+                       {
+                         post.authorData && <NavLink to={`/${post.authorData.slug}`} className='flex items-center gap-2'>
+                           {post.authorData.photo && post.authorData.fullName ? <img src={post.authorData.photo} alt={post.authorData.fullName} className="h-10 w-10 rounded-full object-cover skeleton" /> : <FaUserCircle size={'32'} />}
+                           <div>
+                             <p>{post.authorData.fullName}</p>
+                           </div>
+                         </NavLink>
+                       }
+                       <div className='py-2'>
+                         <span className='text-xs text-gray-400'>{getDateFromTimestamp(post.createdAt).interval}</span>
+                       </div>
+                     </div>
+                   </div>
+                 </NavLink>
+                })}
+              </div>
+              :
+              <div className='py-28 text-center'>
+                <p>{isUser ? 'You have no likes yet' : `${currentUserData[0].username} has not liked any posts yet `}</p>
+                <p className='pt-5 font-bold text-2xl'>{isUser && 'Want to see posts to like?'}</p>
+                {isUser
+                &&
+                <div className='flex py-3 gap-5'>
+                  <NavLink to={'/'} className='mx-auto font-sm rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed bg-slate-950 text-white px-4 py-2 w-fit'>See timeline</NavLink>
+                </div>
+                }
+              </div>
             }
         </div>
         }

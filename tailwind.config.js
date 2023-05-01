@@ -6,7 +6,11 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors:{
+        brandLikeRed1x : '#B80F0A'
+      }
+    },
   },
   plugins: [],
 }

@@ -64,6 +64,9 @@ const fetchAllPosts = async () => {
   // Set all authorDp to the closest one with a non-empty value
 }
 
+const postData = useSWR('posts', fetchAllPosts, {refreshInterval: 30000})
+console.log("Post Data => ", postData.data);
+
 
 // snapshot
 
